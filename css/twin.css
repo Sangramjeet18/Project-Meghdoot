@@ -1,0 +1,452 @@
+/* =================================================================
+   Climate Twin Operator Console Stylesheet (Hackathon Console)
+   ================================================================= */
+
+.twin-page {
+  padding-top: 80px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 30%, #0c142c 0%, #050814 100%);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.twin-header-console {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  text-align: center;
+  border-bottom: 2px solid rgba(0, 194, 255, 0.2);
+  padding-bottom: var(--space-3);
+  position: relative;
+}
+
+.twin-header-subtext {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.twin-header-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(0, 194, 255, 0.5);
+  margin-top: var(--space-1);
+}
+
+.twin-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--space-4);
+  flex: 1;
+  padding: 0 var(--space-4) var(--space-6);
+  box-sizing: border-box;
+}
+
+/* ── Left Map Panel ── */
+.twin-map-card {
+  position: relative;
+  background: rgba(8, 12, 28, 0.6);
+  border: 1px solid rgba(0, 194, 255, 0.15);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  min-height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 30px rgba(0, 194, 255, 0.05);
+}
+
+.twin-map-title-badge {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  background: rgba(0, 194, 255, 0.15);
+  border: 1px solid rgba(0, 194, 255, 0.3);
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+}
+
+.twin-map-overlays-panel {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: rgba(8, 12, 28, 0.85);
+  border: 1px solid rgba(0, 194, 255, 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.twin-overlay-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(0, 194, 255, 0.15);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+.twin-overlay-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.twin-overlay-item input[type="checkbox"] {
+  accent-color: var(--accent-cyan);
+  cursor: pointer;
+}
+
+.twin-map-legend-box {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  background: rgba(8, 12, 28, 0.85);
+  border: 1px solid rgba(0, 194, 255, 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 220px;
+  backdrop-filter: blur(8px);
+}
+
+.twin-legend-title {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.twin-legend-gradient-bar {
+  height: 8px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(to right, #00C2FF, #00E5A8, #FFA726, #FF5252);
+}
+
+.twin-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* ── Wind Vector Layer ── */
+.twin-wind-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.wind-vector {
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  animation: windDrift linear infinite;
+  opacity: 0;
+}
+
+.wind-vector::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 4px;
+  height: 6px;
+  border-left: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  transform: rotate(-45deg);
+}
+
+@keyframes windDrift {
+  0% {
+    transform: translate(0, 0) rotate(20deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(150px, 50px) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* ── Station Pins ── */
+.twin-station-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.station-pin {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-cyan);
+  transform: translate(-50%, -50%);
+  animation: stationPulse 2s infinite;
+}
+
+@keyframes stationPulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 194, 255, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(0, 194, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 194, 255, 0); }
+}
+
+/* ── Right Command Center Panel ── */
+.twin-console-card {
+  background: rgba(8, 12, 28, 0.75);
+  border: 1px solid rgba(0, 194, 255, 0.25);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+}
+
+.twin-console-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(0, 194, 255, 0.2);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.twin-section-box {
+  border: 1px solid rgba(0, 194, 255, 0.1);
+  border-radius: var(--radius-lg);
+  background: rgba(5, 8, 20, 0.5);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.twin-section-hdr {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.twin-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.twin-metric-lbl {
+  color: var(--text-secondary);
+}
+
+.twin-metric-val {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: monospace;
+}
+
+.twin-status-badge {
+  background: rgba(0, 229, 168, 0.15);
+  color: var(--accent-green);
+  border: 1px solid rgba(0, 229, 168, 0.3);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.twin-status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px var(--accent-green);
+  animation: glowPulse 1.5s infinite;
+}
+
+@keyframes glowPulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ── Interactive Range Sliders ── */
+.twin-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: 4px;
+}
+
+.twin-slider-hdr {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.twin-slider-val {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.twin-range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 194, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+}
+
+.twin-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent-cyan);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--accent-cyan);
+  transition: transform 0.1s;
+}
+
+.twin-range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ── Glowing Run Button ── */
+.twin-run-btn {
+  background: linear-gradient(135deg, rgba(0, 194, 255, 0.2) 0%, rgba(0, 229, 168, 0.2) 100%);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 30px;
+  color: #ffffff;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-sm);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--duration-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0, 194, 255, 0.3);
+  text-align: center;
+}
+
+.twin-run-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 194, 255, 0.4) 0%, rgba(0, 229, 168, 0.4) 100%);
+  box-shadow: 0 0 25px rgba(0, 194, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+.twin-run-btn:active {
+  transform: translateY(1px);
+}
+
+.twin-btn-subtext {
+  font-size: 8px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-top: 2px;
+  display: block;
+}
+
+/* ── Simulation Loading Overlay ── */
+.twin-sim-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 8, 20, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.twin-sim-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.twin-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(0, 194, 255, 0.1);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1024px) {
+  .twin-layout {
+    grid-template-columns: 1fr;
+  }
+}
