@@ -347,48 +347,7 @@ const TwinPage = {
         if (overlay) overlay.classList.remove('active');
 
         if (data.status === 'success') {
-          // Update Insights panel from python output
-          const accuracyEl = document.getElementById('insight-accuracy');
-          const delayEl = document.getElementById('insight-delay');
-          const droughtEl = document.getElementById('insight-drought');
-          const floodEl = document.getElementById('insight-flood');
-
-          if (accuracyEl) accuracyEl.textContent = data.insights.prediction_accuracy;
-          if (delayEl) {
-            delayEl.textContent = data.insights.onset_delay;
-            const days = parseInt(data.insights.onset_delay.match(/\d+/)?.[0] || 0);
-            delayEl.style.color = days > 8 ? 'var(--accent-red)' : days > 4 ? 'var(--accent-orange)' : 'var(--accent-green)';
-          }
-          if (droughtEl) {
-            droughtEl.textContent = data.insights.drought_risk;
-            const lvl = data.insights.drought_risk;
-            droughtEl.style.color = lvl.includes('Critical') || lvl.includes('High') ? 'var(--accent-red)' : lvl.includes('Medium') ? 'var(--accent-orange)' : 'var(--accent-green)';
-          }
-          if (floodEl) {
-            floodEl.textContent = data.insights.flood_risk;
-            const lvl = data.insights.flood_risk;
-            floodEl.style.color = lvl.includes('Critical') || lvl.includes('High') ? 'var(--accent-red)' : lvl.includes('Medium') ? 'var(--accent-orange)' : 'var(--accent-green)';
-          }
-
-          // Re-render map layer dynamically
-          const activeLayer = this.oceanHeat > 2.0 ? 'floodRisk' : 'rainfall';
-          IndiaMap.render('twin-map', { activeLayer: activeLayer, showLabels: false });
-
-          const btnSubtext = document.querySelector('.twin-btn-subtext');
-          if (btnSubtext && data.metadata && data.metadata.inference_time_seconds) {
-            btnSubtext.textContent = `Inference Time: ${data.metadata.inference_time_seconds.toFixed(2)} seconds`;
-          }
-
-          const btnExport = document.getElementById('btn-export-report');
-          if (btnExport) {
-            btnExport.style.display = 'flex';
-            this.lastSimulationData = data;
-          }
-
-          if (typeof Components !== 'undefined') {
-            const inferenceTime = data.metadata && data.metadata.inference_time_seconds ? data.metadata.inference_time_seconds.toFixed(2) : "0.00";
-            Components.showToast(`Surrogate FNO model executed in ${inferenceTime} seconds. Climate state updated.`, 'success');
-          }
+          this.processSimulationData(data);
         } else {
           if (typeof Components !== 'undefined') {
             Components.showToast('Error running FNO model simulation', 'error');
@@ -396,12 +355,88 @@ const TwinPage = {
         }
       })
       .catch(err => {
-        if (overlay) overlay.classList.remove('active');
-        console.error(err);
-        if (typeof Components !== 'undefined') {
-          Components.showToast('Failed to connect to FNO surrogate model backend', 'error');
+        console.error("Simulation API Error:", err);
+        if (window.location.protocol === 'https:') {
+          // GitHub Pages / Static hosting fallback demo mode
+          setTimeout(() => {
+            if (overlay) overlay.classList.remove('active');
+            
+            // Mock dynamic data based on sliders
+            const delayDays = this.oceanHeat > 2.0 ? 12 : this.oceanHeat > 1.0 ? 5 : 0;
+            const delayStr = delayDays > 0 ? `Kerala (+${delayDays} Days)` : 'Kerala (On Time)';
+            const droughtLvl = this.greenspace < 40 ? 'Critical' : this.greenspace < 70 ? 'High' : 'Medium';
+            const floodLvl = this.oceanHeat > 2.5 ? 'Critical' : this.oceanHeat > 1.5 ? 'High' : 'Medium';
+            const accuracy = (90 + (this.physicsWeight * 5)).toFixed(1) + '%';
+            
+            const mockData = {
+              status: 'success',
+              metadata: { inference_time_seconds: 0.15 + (Math.random() * 0.05) },
+              insights: {
+                prediction_accuracy: accuracy,
+                onset_delay: delayStr,
+                drought_risk: `Rajasthan (${droughtLvl})`,
+                flood_risk: `Western Ghats (${floodLvl})`
+              },
+              confidence: { spread: 6.9, precip_confidence: "Low" }
+            };
+            
+            this.processSimulationData(mockData);
+            
+            if (typeof Components !== 'undefined') {
+              Components.showToast('Live Backend unreachable. Running in Demo Mock Mode.', 'info');
+            }
+          }, 800); // simulate some latency
+        } else {
+          if (overlay) overlay.classList.remove('active');
+          if (typeof Components !== 'undefined') {
+            Components.showToast('Failed to connect to FNO surrogate model backend', 'error');
+          }
         }
       });
+  },
+
+  processSimulationData(data) {
+    const accuracyEl = document.getElementById('insight-accuracy');
+    const delayEl = document.getElementById('insight-delay');
+    const droughtEl = document.getElementById('insight-drought');
+    const floodEl = document.getElementById('insight-flood');
+
+    if (accuracyEl) accuracyEl.textContent = data.insights.prediction_accuracy;
+    if (delayEl) {
+      delayEl.textContent = data.insights.onset_delay;
+      const days = parseInt(data.insights.onset_delay.match(/\d+/)?.[0] || 0);
+      delayEl.style.color = days > 8 ? 'var(--accent-red)' : days > 4 ? 'var(--accent-orange)' : 'var(--accent-green)';
+    }
+    if (droughtEl) {
+      droughtEl.textContent = data.insights.drought_risk;
+      const lvl = data.insights.drought_risk;
+      droughtEl.style.color = lvl.includes('Critical') || lvl.includes('High') ? 'var(--accent-red)' : lvl.includes('Medium') ? 'var(--accent-orange)' : 'var(--accent-green)';
+    }
+    if (floodEl) {
+      floodEl.textContent = data.insights.flood_risk;
+      const lvl = data.insights.flood_risk;
+      floodEl.style.color = lvl.includes('Critical') || lvl.includes('High') ? 'var(--accent-red)' : lvl.includes('Medium') ? 'var(--accent-orange)' : 'var(--accent-green)';
+    }
+
+    // Re-render map layer dynamically
+    const activeLayer = this.oceanHeat > 2.0 ? 'floodRisk' : 'rainfall';
+    IndiaMap.render('twin-map', { activeLayer: activeLayer, showLabels: false });
+
+    const btnSubtext = document.querySelector('.twin-btn-subtext');
+    if (btnSubtext && data.metadata && data.metadata.inference_time_seconds) {
+      btnSubtext.textContent = `Inference Time: ${data.metadata.inference_time_seconds.toFixed(2)} seconds`;
+    }
+
+    const btnExport = document.getElementById('btn-export-report');
+    if (btnExport) {
+      btnExport.style.display = 'flex';
+      this.lastSimulationData = data;
+    }
+
+    if (typeof Components !== 'undefined') {
+      const inferenceTime = data.metadata && data.metadata.inference_time_seconds ? data.metadata.inference_time_seconds.toFixed(2) : "0.00";
+      Components.showToast(`Surrogate FNO model executed in ${inferenceTime} seconds. Climate state updated.`, 'success');
+    }
   },
 
   exportReport() {
