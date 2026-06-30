@@ -356,42 +356,35 @@ const TwinPage = {
       })
       .catch(err => {
         console.error("Simulation API Error:", err);
-        if (window.location.protocol === 'https:') {
-          // GitHub Pages / Static hosting fallback demo mode
-          setTimeout(() => {
-            if (overlay) overlay.classList.remove('active');
-            
-            // Mock dynamic data based on sliders
-            const delayDays = this.oceanHeat > 2.0 ? 12 : this.oceanHeat > 1.0 ? 5 : 0;
-            const delayStr = delayDays > 0 ? `Kerala (+${delayDays} Days)` : 'Kerala (On Time)';
-            const droughtLvl = this.greenspace < 40 ? 'Critical' : this.greenspace < 70 ? 'High' : 'Medium';
-            const floodLvl = this.oceanHeat > 2.5 ? 'Critical' : this.oceanHeat > 1.5 ? 'High' : 'Medium';
-            const accuracy = (90 + (this.physicsWeight * 5)).toFixed(1) + '%';
-            
-            const mockData = {
-              status: 'success',
-              metadata: { inference_time_seconds: 0.15 + (Math.random() * 0.05) },
-              insights: {
-                prediction_accuracy: accuracy,
-                onset_delay: delayStr,
-                drought_risk: `Rajasthan (${droughtLvl})`,
-                flood_risk: `Western Ghats (${floodLvl})`
-              },
-              confidence: { spread: 6.9, precip_confidence: "Low" }
-            };
-            
-            this.processSimulationData(mockData);
-            
-            if (typeof Components !== 'undefined') {
-              Components.showToast('Live Backend unreachable. Running in Demo Mock Mode.', 'info');
-            }
-          }, 800); // simulate some latency
-        } else {
+        // Fallback demo mode for any network failure (GitHub Pages, Server down, etc)
+        setTimeout(() => {
           if (overlay) overlay.classList.remove('active');
+          
+          // Mock dynamic data based on sliders
+          const delayDays = this.oceanHeat > 2.0 ? 12 : this.oceanHeat > 1.0 ? 5 : 0;
+          const delayStr = delayDays > 0 ? `Kerala (+${delayDays} Days)` : 'Kerala (On Time)';
+          const droughtLvl = this.greenspace < 40 ? 'Critical' : this.greenspace < 70 ? 'High' : 'Medium';
+          const floodLvl = this.oceanHeat > 2.5 ? 'Critical' : this.oceanHeat > 1.5 ? 'High' : 'Medium';
+          const accuracy = (90 + (this.physicsWeight * 5)).toFixed(1) + '%';
+          
+          const mockData = {
+            status: 'success',
+            metadata: { inference_time_seconds: 0.15 + (Math.random() * 0.05) },
+            insights: {
+              prediction_accuracy: accuracy,
+              onset_delay: delayStr,
+              drought_risk: `Rajasthan (${droughtLvl})`,
+              flood_risk: `Western Ghats (${floodLvl})`
+            },
+            confidence: { spread: 6.9, precip_confidence: "Low" }
+          };
+          
+          this.processSimulationData(mockData);
+          
           if (typeof Components !== 'undefined') {
-            Components.showToast('Failed to connect to FNO surrogate model backend', 'error');
+            Components.showToast('Live Backend unreachable. Running in Demo Mock Mode.', 'info');
           }
-        }
+        }, 800); // simulate some latency
       });
   },
 
